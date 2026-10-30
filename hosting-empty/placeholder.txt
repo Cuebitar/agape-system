@@ -1,0 +1,1 @@
+Static placeholder; all routes are served by Cloud Run (see firebase.json rewrites).
