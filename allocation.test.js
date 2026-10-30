@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {allocate} from './allocation.js';
+const arts=[1,2,3].map(id=>({id,active:true,quantity:1}));const offer=(id,artwork_id,amount,time=id)=>({id,artwork_id,amount,created_at:new Date(2026,0,1,0,0,time).toISOString()});
+test('specific item higher amount wins',()=>assert.equal(allocate(arts,[offer(1,1,500),offer(2,1,800)])[0].offerId,2));
+test('same amount earlier wins',()=>assert.equal(allocate(arts,[offer(1,1,800),offer(2,1,800)])[0].offerId,1));
+test('random replaces smallest existing allocation',()=>assert.deepEqual(allocate(arts,[offer(1,1,500),offer(2,2,800),offer(3,3,1000),offer(4,null,900)]).find(x=>x.offerId===4).artworkId,'1'));
+test('later lower random cannot replace larger random',()=>{const a=allocate(arts.slice(0,1),[offer(1,1,500),offer(2,null,900),offer(3,null,700)]);assert.equal(a[0].offerId,2)});
+test('random equal does not replace',()=>assert.equal(allocate(arts.slice(0,1),[offer(1,1,800),offer(2,null,800)])[0].offerId,1));
+test('multiple copies allocate separately',()=>{const a=allocate([{id:1,active:true,quantity:2}],[offer(1,1,500),offer(2,1,700),offer(3,null,600)]);assert.deepEqual(a.map(x=>x.offerId).sort(),[2,3])});
+test('random cannot take artwork below minimum',()=>{const a=allocate([{id:1,quantity:1,minimum_amount:1000,active:true},{id:2,quantity:1,minimum_amount:200,active:true}],[offer(1,null,500)]);assert.equal(a[0].artworkId,'2')});
+test('specific offer cannot fall below minimum',()=>assert.equal(allocate([{id:1,quantity:1,minimum_amount:800,active:true}],[offer(1,1,500)]).length,0));
+test('earlier random ties retain priority',()=>{const a=allocate([{id:1,quantity:1,minimum_amount:0,active:true}],[offer(1,null,800),offer(2,null,800)]);assert.equal(a[0].offerId,1)});
