@@ -1,0 +1,9 @@
+{
+  "hosting": {
+    "public": "hosting-empty",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "**", "run": { "serviceId": "agape-system", "region": "asia-southeast1" } }
+    ]
+  }
+}
